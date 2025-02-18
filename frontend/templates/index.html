@@ -1,0 +1,436 @@
+<!-- frontend/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Algorithm Runner and Plot Viewer</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    
+    <!-- Highlight.js CSS for JSON syntax highlighting -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    
+    <style>
+        /* Custom styles for better spacing and alignment */
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-card {
+            padding: 20px;
+            border: 1px solid #e3e3e3;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .submit-button {
+            width: 100%;
+        }
+        .json-list, .plot-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #plot {
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 80vh;
+            margin: 0 auto;
+        }
+        #score-distribution-plot {
+            width: 100%;
+            height: 200px;
+            margin: 0 auto;
+            margin-bottom: 20px; /* Add some space below the distribution plot */
+        }
+        #node-info {
+            white-space: pre-wrap;
+            margin-top: 50;
+            background-color: #f1f1f1;
+            padding: 25px;
+            border-radius: 5px;
+            max-height: 80vh;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* Optional: Add spacing below node-info */
+        .bottom-spacing {
+            margin-bottom: 10;
+        }
+        /* Styling for plot list */
+        .plot-list ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .plot-list li {
+            margin-bottom: 10px;
+        }
+        .plot-list a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .plot-list a:hover {
+            text-decoration: underline;
+        }
+
+        .spider-options {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid mt-5">
+    <h1 class="mb-4">CALLM: A Framework for Systematic Contrastive Analysis of Large Language Models</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Parameter Form -->
+    <form method="POST">
+        <div class="form-card">
+            <!-- Year Parameters -->
+            <!-- <div class="form-section">
+                <h5>Year Parameters</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="YEAR_OLD_START">YEAR_OLD_START</label>
+                        <input type="text" class="form-control" id="YEAR_OLD_START" name="YEAR_OLD_START" value="1990" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="YEAR_OLD_END">YEAR_OLD_END</label>
+                        <input type="text" class="form-control" id="YEAR_OLD_END" name="YEAR_OLD_END" value="1995" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="YEAR_NEW_START">YEAR_NEW_START</label>
+                        <input type="text" class="form-control" id="YEAR_NEW_START" name="YEAR_NEW_START" value="1996" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="YEAR_NEW_END">YEAR_NEW_END</label>
+                        <input type="text" class="form-control" id="YEAR_NEW_END" name="YEAR_NEW_END" value="2001" required>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Generation & Similarity -->
+            <!-- <div class="form-section">
+                <h5>Generation & Similarity</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="GENERATION_TYPE">GENERATION_TYPE</label>
+                        <input type="text" class="form-control" id="GENERATION_TYPE" name="GENERATION_TYPE" value="paragraph_with_classification" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="SIMILARITY_TYPE">SIMILARITY_TYPE</label>
+                        <input type="text" class="form-control" id="SIMILARITY_TYPE" name="SIMILARITY_TYPE" value="llm_comparator" required>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Sampling Parameters -->
+            <div class="form-section">
+                <h5>Sampling Parameters</h5>
+                <div class="form-row">
+                    <!-- <div class="form-group col-md-3">
+                        <label for="NUM_SAMPLES">NUM_SAMPLES</label>
+                        <input type="number" class="form-control" id="NUM_SAMPLES" name="NUM_SAMPLES" value="10" required>
+                    </div> -->
+                    <div class="form-group col-md-3">
+                        <label for="SUBCATEGORY_COUNT">SUBCATEGORY_COUNT</label>
+                        <input type="number" class="form-control" id="SUBCATEGORY_COUNT" name="SUBCATEGORY_COUNT" value="3" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="TOKENS_PER_FACT">TOKENS_PER_FACT</label>
+                        <input type="number" class="form-control" id="TOKENS_PER_FACT" name="TOKENS_PER_FACT" value="50" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="ITERATION_DEPTH">ITERATION_DEPTH</label>
+                        <input type="number" class="form-control" id="ITERATION_DEPTH" name="ITERATION_DEPTH" value="2" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output & Topic -->
+            <div class="form-section">
+                <h5>Output & Topic</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="OUTPUT_FILENAME">OUTPUT_FILENAME</label>
+                        <input type="text" class="form-control" id="OUTPUT_FILENAME" name="OUTPUT_FILENAME" value="test.json" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="ROOT_TOPIC_NAME">ROOT_TOPIC_NAME</label>
+                        <input type="text" class="form-control" id="ROOT_TOPIC_NAME" name="ROOT_TOPIC_NAME" value="seaWorld" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thresholds -->
+            <div class="form-section">
+                <h5>Thresholds</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="THRESHOLD_SIMILARITY_CLASSES">THRESHOLD_SIMILARITY_CLASSES</label>
+                        <input type="number" step="0.01" class="form-control" id="THRESHOLD_SIMILARITY_CLASSES" name="THRESHOLD_SIMILARITY_CLASSES" value="0.93" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="THRESHOLD_SKIP_NODE_HIGH">THRESHOLD_SKIP_NODE_HIGH</label>
+                        <input type="number" step="0.01" class="form-control" id="THRESHOLD_SKIP_NODE_HIGH" name="THRESHOLD_SKIP_NODE_HIGH" value="0.75" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="THRESHOLD_SKIP_NODE_LOW">THRESHOLD_SKIP_NODE_LOW</label>
+                        <input type="number" step="0.01" class="form-control" id="THRESHOLD_SKIP_NODE_LOW" name="THRESHOLD_SKIP_NODE_LOW" value="0.1" required>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary submit-button">Run Algorithm</button>
+        </div>
+    </form>
+
+    <hr>
+
+    <h2 class="mb-3">Generated JSON Files</h2>
+    <div class="json-list">
+        {% if json_files %}
+            <ul class="list-group">
+                {% for file in json_files %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('get_json_file', filename=file) }}" target="_blank">{{ file }}</a>
+                        <button class="btn btn-sm btn-outline-secondary view-plot-btn" data-filename="{{ file }}">View Plot</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No JSON files found.</p>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <h2 class="mb-3">Generated Plots</h2>
+    <div class="plot-list">
+        {% if plot_files %}
+            <ul class="list-group">
+                {% for plot in plot_files %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('serve_plot', filename=plot) }}" target="_blank">{{ plot }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No plot files found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Plot Modal -->
+    <div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="plotModalLabel">Select Plot Type</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="plotForm">
+                <div class="form-group">
+                    <label for="plotType">Choose Plot Type:</label>
+                    <select class="form-control" id="plotType" name="plotType" required>
+                        <option value="" disabled selected>Select plot type</option>
+                        <option value="tree">Tree</option>
+                        <option value="tree_node_aggregation">Tree Node Aggregation</option>
+                        <option value="treemap">Treemap</option>
+                        <option value="sunburst">Sunburst</option>
+                        <option value="subtree">Subtree</option>
+                        <option value="spider">Spider</option>
+                    </select>
+                </div>
+
+                <!-- Spider Options -->
+                <div class="form-group spider-options" id="spiderOptions">
+                    <label>Visible Traces:</label><br>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input spider-trace" type="checkbox" id="traceNew" value="new" checked>
+                      <label class="form-check-label" for="traceNew">New</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input spider-trace" type="checkbox" id="traceOld" value="old" checked>
+                      <label class="form-check-label" for="traceOld">Old</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input spider-trace" type="checkbox" id="traceDiff" value="diff" checked>
+                      <label class="form-check-label" for="traceDiff">Diff</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Generate Plot</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+    <div id="node-info" class="bottom-spacing">Click on a node to see more information.</div>
+    <hr>
+    <h2 class="mb-3">Plot</h2>
+    <!-- Added Score Distribution Plot Section -->
+    <h3 class="mb-3 text-center">Score Distribution</h3>
+    <div id="score-distribution-plot"></div>
+    <!-- End of Score Distribution Plot Section -->
+    <div class="row justify-content-center">
+        <div style="text-align: center; width: 100%;">
+            <div id="plot" style="display: inline-block;"></div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Bootstrap JS and dependencies (for better UI) -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Plotly JS -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<!-- Highlight.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<!-- Initialize Highlight.js -->
+<script>
+    hljs.highlightAll();
+</script>
+
+<script>
+    $(document).ready(function(){
+        // Show/hide spider options based on selected plot type
+        $('#plotType').change(function(){
+            var selectedType = $(this).val();
+            if (selectedType === 'spider') {
+                $('#spiderOptions').show();
+            } else {
+                $('#spiderOptions').hide();
+            }
+        });
+
+        // Handle View Plot button click
+        $('.view-plot-btn').click(function(){
+            var filename = $(this).data('filename');
+            console.log('Selected file:', filename);
+            $('#plotModal').data('filename', filename).modal('show');
+        });
+
+        // Handle Plot Form submission
+        $('#plotForm').submit(function(event){
+            event.preventDefault();
+            var plotType = $('#plotType').val();
+            var filename = $('#plotModal').data('filename');
+
+            console.log('Plot Type:', plotType);
+            console.log('Filename:', filename);
+
+            if(!plotType){
+                alert('Please select a plot type.');
+                return;
+            }
+
+            // Gather visible traces if spider is selected
+            var visibleTraces = ['new','old','diff']; // default
+            if (plotType === 'spider') {
+                visibleTraces = [];
+                $('.spider-trace:checked').each(function(){
+                    visibleTraces.push($(this).val());
+                });
+            }
+
+            // Send AJAX request to get plot
+            $.ajax({
+                url: "{{ url_for('plot') }}",
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({'filename': filename, 'plot_type': plotType, 'visible_traces': visibleTraces}),
+                success: function(response){
+                    console.log('AJAX Response:', response);
+                    try {
+                        var selectedPlot = response.selected_plot; // Selected plot JSON
+                        var scoreDistPlot = response.score_distribution_plot; // Score distribution plot JSON
+                        console.log('Selected Figure:', selectedPlot);
+                        console.log('Score Distribution Figure:', scoreDistPlot);
+
+                        // Render Score Distribution Plot
+                        Plotly.newPlot('score-distribution-plot', scoreDistPlot.data, scoreDistPlot.layout, {responsive: true});
+
+                        // Render Selected Plot
+                        Plotly.newPlot('plot', selectedPlot.data, selectedPlot.layout, {responsive: true});
+                        
+                        // Attach click event after plot is rendered
+                        var plotDiv = document.getElementById('plot');
+                        plotDiv.on('plotly_click', function(data){
+                            var node_name = data.points[0].customdata || data.points[0].label || data.points[0].text;
+                            console.log('Clicked node:', node_name);
+                            
+                            if (!node_name) {
+                                alert('No node data available.');
+                                return;
+                            }
+
+                            // Send AJAX request to get node info
+                            $.ajax({
+                                url: "{{ url_for('node_info') }}",
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({'filename': filename, 'node_name': node_name}),
+                                success: function(response){
+                                    var node_info = response.node_info;
+                                    console.log('Node Info:', node_info);
+                                    
+                                    if (typeof node_info === 'string') {
+                                        try {
+                                            node_info = JSON.parse(node_info);
+                                        } catch (e) {
+                                            console.error('Error parsing node_info JSON:', e);
+                                        }
+                                    }
+
+                                    var formatted_json = JSON.stringify(node_info, null, 4);
+                                    $('#node-info').html('<pre><code class="json">' + formatted_json + '</code></pre>');
+                                    hljs.highlightElement($('#node-info pre code')[0]);
+                                },
+                                error: function(xhr, status, error){
+                                    console.error('Error fetching node info:', xhr.responseJSON.error);
+                                    alert('Error fetching node info: ' + xhr.responseJSON.error);
+                                }
+                            });
+                        });
+
+                        // Close the modal
+                        $('#plotModal').modal('hide');
+                    } catch (e) {
+                        console.error('Error parsing Plotly figure:', e);
+                        alert('Error parsing plot data.');
+                    }
+                },
+                error: function(xhr, status, error){
+                    console.error('AJAX Error:', xhr.responseJSON ? xhr.responseJSON.error : error);
+                    alert('Error generating plot: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,45 +1,93 @@
-# CALLM: A Framework for Systematic Contrastive Analysis of Large Language Models
+<div align="center">
+   <img src="./images/CALLM_logo.png" width="100"  alt="Alt text">
+</div>
 
-**CALLM** is a tool which enhances our understanding of architectural and training differences between compared LLMs. Our work contributes to the development of more transparent machine learning models and is meant to foster research in model evaluation and comparative analysis.
+# 🔥 CALLM: A Framework for Systematic Contrastive Analysis of Large Language Models 🔥
 
-## Key Features
+_**CALLM** is a tool which enhances our understanding of architectural and training differences between compared LLMs. Our work contributes to the development of more transparent machine learning models and is meant to foster research in model evaluation and comparative analysis. Also it helps finding ideal model for specific knowledge use cases by inspecting the differences found._
+
+
+
+## 🔍 Table of Contents
+- [Key Features](#key-features)
+- [How to Use It](#how-to-use-it)
+- [Main Loop](#main-loop)
+- [Evaluation](#evaluation)
+  - [Setup](#setup)
+  - [Interface](#interface)
+  - [Visualization Types](#visualization-types)
+- [Citation](#citation)
+
+
+## ✨ Key Features
 
 - **Automated Hierarchical Topic Generation**: The system dynamically creates a hierarchical topic structure based on user queries.
-- **LLM-based Text Comparison**: Uses LLMs like SBERT and LLM Comparator to automatically compare outputs from two models, identifying differences in vocabulary, facts, and themes.
-- **Customization Options**: Users can specify query depth, threshold for detecting differences, and comparison methods.
-- **Analysis**: Designed to reveal shifts in public opinion, media framing, and also to analyse performance of LLM's.
-- **Visualization**: Outputs can be visualized in a tree structure, treemap, sunburst, subtree or spider Diagram.
+- **LLM-based Text Comparison**: Uses LLM as a judge technique to find differences between the two model responses.
+- **Analysis**: Designed to reveal knowledge differences and performance properties of llms.
+- **Visualization**: Outputs can be visualized in multiple formats:
+  - [Tree structure](#tree-visualization)
+  - [Treemap](#treemap-visualization)
+  - [Sunburst diagram](#sunburst-visualization)
+  - [Subtree view](#subtree-visualization)
+  - [Spider diagram](#spider-visualization)
 
-## Use Cases
+## 🔧 How to Use It
+For running experiments you need to provide your API key. To use the visualization tool you just need to follow the [evaluation section](#evaluation).
 
-This tool can be used in several areas, including:
-
-1. **Public Opinion Analysis**: Track how societal attitudes change over time by comparing model outputs trained on historical and contemporary data.
-2. **Media Framing Studies**: Investigate how media framing of topics evolves across different periods.
-3. **Historical Text Comparison**: Compare thematic differences in text generated from various historical periods.
-4. **Research in Continual Model Adaptation**: Study how machine learning models adapt to new data over time.
-
-## How to Use It
-
-Remark: It is not possible to use the project urself with llm_comparator!
-
-# Section Main Loop
+## Main Loop (coming soon)
 1. **Setting Up Models**: Provide two machine learning models trained on different time periods.
 2. **Defining the Query**: Specify a root keyword for the topic of interest (e.g., "social media").
 3. **Configuring Parameters**:
    - Choose the depth of the hierarchy.
    - Define thresholds for detecting differences.
-   - Select comparison methods (e.g., SBERT, LLM Comparator).
 4. **Running the Algorithm**: The system will generate hierarchical categories and compare text outputs from the two models.
-# Section Evaluation
-1. **Reviewing Results**: Explore the differences through the provided visualization tools (tree structure or treemap).
-2. **Interpreting Differences**: Understand shifts in trends, language, and framing based on the comparison output.
 
+
+<div align="center">
+   <img src="./images/workf.png"  alt="Alt text">
+</div>
+
+## Visualization
+
+### 🚀 Setup
+In CALLM folder:
+
+- `json/`: Holds all generated experiments which can be inspected
+- `plots/`: Holds all generated plots with the UI
+- `spider/`: Holds all spider diagrams generated with the UI
+
+### Interface
+To start the UI:
+
+1. `pip install -r requirements.txt`
+2. `cd frontend && python3 app.py`
+
+The visualization process enables generation of a variaty of plots as shown below:
+
+<div align="center">
+   <img src="./images/visualization.png" width="500" alt="Alt text">
+</div>
+
+
+### Visualization Types
+- **Distribution Analysis**: Shows general informations about the tree.
+- **Tree Visualization**: The hierarchical tree view provides a clear overview of the topic structure:
+- **Treemap Visualization**: Treemaps offer an area-based representation of the data hierarchy to find relevant clusters.
+- **Subtree Visualization**: Focused view on the most relevant paths in the tree with most differences. This plots uses a depth depending weighted appraoch.
+
+<div align="center">
+  <img src="./images/diagrams.png"  alt="Alt text">
+</div>
+
+- **Spider Diagram**: Shows the prefered directions of each model. (Example is from gpt3.5 (green) vs gemini-flash (blue) to category Ukraine)
+
+<div align="center">
+  <img src="./images/spider.png" width="500"  alt="Alt text">
+</div>
+
+
+**Interactive Features**: All visualizations are interactive - clicking on any node or element displays detailed information about that component.
 
 ## Citation
 ### Bibtex
 ```bibtex
-```
-
-## Acknowledgments
-Thanks to our contributors and the University of Innsbruck for supporting this project.

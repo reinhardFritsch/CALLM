@@ -1,0 +1,8 @@
+flask
+plotly==5.23.0
+anytree
+igraph
+numpy
+tqdm
+google-generativeai
+pandas
