@@ -34,6 +34,8 @@ _**CALLM** is a tool which enhances our understanding of architectural and train
 ## 🔧 How to Use It
 For running experiments you need to provide your API key. To use the visualization tool you just need to follow the [evaluation section](#evaluation).
 
+Watch our [Demo Video](https://youtu.be/7Dlh_E3WkRw) on YouTube!
+
 ## Main Loop (coming soon)
 1. **Setting Up Models**: Provide two machine learning models trained on different time periods.
 2. **Defining the Query**: Specify a root keyword for the topic of interest (e.g., "social media").
